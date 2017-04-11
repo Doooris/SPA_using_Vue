@@ -25,18 +25,24 @@
 								<div class="price">
 									<span class="now">￥{{food.price}}</span><span class="old" v-show="food.oldPrice">￥{{food.oldPrice}}</span>
 								</div>
+								<div class="editBtnWrapper">
+									<editBtn :food="food"></editBtn>
+								</div>
 							</div>
 						</li>
 					</ul>
 				</li>
 			</ul>
 		</div>
+		<cart :deliveryTime="seller.deliveryTime" :minPrice="seller.minPrice" :selectFoods="selectFoods"></cart>
 	</div>
 
 </template>
 
 <script type="text/ecmascript-6">
 	import BScroll from 'better-scroll'
+	import cart from 'components/cart/cart.vue'
+	import editBtn from 'components/editBtn/editBtn.vue'
 	const ERR_OK = 0
 	export default {
 		data () {
@@ -61,6 +67,17 @@
 					}
 				}
 				return 0
+			},
+			selectFoods () {
+				let selectFoods = []
+				this.goods.forEach(kind => {
+					kind.foods.forEach(food => {
+						if (food.count > 0) {
+							selectFoods.push(food)
+						}
+					})
+				})
+				return selectFoods
 			}
 		},
 		created () {
@@ -87,6 +104,7 @@
 					click: true
 				})
 				this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+					click: true,
 					probeType: 3
 				})
 				this.foodsScroll.on('scroll', (pos) => {
@@ -102,6 +120,9 @@
 					this.heightList.push(height)
 				}
 			}
+		},
+		components: {
+			cart, editBtn
 		}
 	}
 </script>
@@ -201,6 +222,7 @@
 			    margin-right: 10px;
 		    }
 	      .info{
+		      position: relative;
 	        flex: 1;
 		      .foodName{
 			      margin: 2px 0 8px 0;
@@ -235,7 +257,11 @@
 		          font-size: 10px;
 	          }
 	        }
-
+          .editBtnWrapper{
+	          position: absolute;
+	          right: 0;
+	          bottom: -6px;
+          }
 	      }
 	    }
 	  }

@@ -171,6 +171,7 @@
 	      .icon-keyboard_arrow_right{
 		      font-size: 10px;
 		      color: #FFFFFF;
+		      z-index: 51;
 	      }
 	    }
 		}

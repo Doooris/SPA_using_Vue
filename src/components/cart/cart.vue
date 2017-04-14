@@ -24,7 +24,7 @@
 				</div>
 				<div class="detailList" ref="detailList">
 					<ul>
-						<li v-for="food in selectFoods" class="listItem">
+						<li v-for="food in selectFoods" class="listItem border-1px">
 							<span class="name">{{food.name}}</span>
 							<div class="price">
 								<span>￥{{food.price*food.count}}</span>

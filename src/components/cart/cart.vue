@@ -1,6 +1,6 @@
 <template>
 	<div class="footer">
-		<div class="cartWrapper">
+		<div class="cartWrapper" @click="toggleList">
 			<div class="cartLeft">
 				<div class="cartLogoWrapper">
 					<div class="cartLogo" :class="{'highLight':totalCount>0}">
@@ -16,13 +16,39 @@
 					{{desc}}</div>
 			  </div>
 		</div>
+		<transition name="fold">
+			<div class="cartDetailWrapper" v-show="listShow">
+				<div class="detailHeader">
+					<span class="title">购物车</span>
+					<span class="empty" @click="empty">清空</span>
+				</div>
+				<div class="detailList" ref="detailList">
+					<ul>
+						<li v-for="food in selectFoods" class="listItem">
+							<span class="name">{{food.name}}</span>
+							<div class="price">
+								<span>￥{{food.price*food.count}}</span>
+							</div>
+							<div class="editBtnWrapper">
+								<editBtn :food="food"></editBtn>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</transition>
+		<div class="overLayer" v-show="listShow"></div>
 	</div>
 </template>
 
 <script type="text/ecmascript-6">
+	import editBtn from 'components/editBtn/editBtn.vue'
+	import BScroll from 'better-scroll'
 	export default {
-		mounted () {
-			console.log(this.selectFoods)
+		data () {
+			return {
+				fold: true
+			}
 		},
 		props: {
 			selectFoods: {
@@ -43,6 +69,19 @@
 			minPrice: {
 				type: Number,
 				default: 0
+			}
+		},
+		methods: {
+			toggleList () {
+				if (!this.totalCount) {
+					return
+				}
+				this.fold = !this.fold
+			},
+			empty () {
+				this.selectFoods.forEach((food) => {
+					food.count = 0
+				})
 			}
 		},
 		computed: {
@@ -69,11 +108,27 @@
 				} else {
 					return '去结算'
 				}
+			},
+			listShow () {
+				if (!this.totalCount) {
+					this.fold = true
+					return false
+				}
+				if (!this.fold) {
+					this.$nextTick(() => {
+						if (!this.scroll) {
+							this.scroll = new BScroll(this.$refs.detailList, {click: true})
+						} else {
+							this.scroll.refresh()
+						}
+					})
+				}
+				return !this.fold
 			}
-		}
+		},
+		components: { editBtn }
 	}
 </script>
-
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 	@import "../../common/css/mixin.scss";
@@ -84,9 +139,9 @@
 		bottom: 0;
 		width: 100%;
 		height: 48px;
+	  box-sizing: border-box;
 		.cartWrapper{
 			display: flex;
-			/*height: 100%;*/
 			background: #141d27;
 		  font-size: 0;
 			.cartLeft{
@@ -182,6 +237,84 @@
 					 }
 				}
 			}
+		}
+	  .fold-enter{
+		  transform: translate3D(0,100%,0);
+	  }
+	  .fold-enter-active{
+		  transform: translate3D(0,0,0);
+		  transition: all 0.5s linear;
+	  }
+	  .cartDetailWrapper{
+		  /*border: 1px solid;*/
+		  position: absolute;
+		  box-sizing: border-box;
+		  left: 0;
+		  bottom: 0;
+		  width: 100%;
+		  z-index: -1;
+		  .detailHeader{
+			  padding: 0 18px;
+			  /*width: 100%;*/
+			  height: 40px;
+			  line-height: 40px;
+			  background: #f3f5f7;
+			  border-bottom: 1px solid rgba(7,17,27,0.1);
+			  .title{
+				  float: left;
+				  font-size: 14px;
+				  font-weight: 200;
+				  color: rgb(7,17,27);
+			  }
+	      .empty{
+		      float: right;
+		      font-size: 12px;
+		      color: rgb(0,160,220);
+	      }
+		  }
+	    .detailList{
+		    padding: 0 18px 70px 18px;
+		    max-height: 217px;
+		    background: #fff;
+		    overflow: hidden;
+		    .listItem{
+			    position: relative;
+			    padding: 12px 0;
+			    box-sizing: border-box;
+			    @include border-1px(bottom,rgba(7,17,27,0.1));
+			    .name{
+				    font-size: 14px;
+				    color: rgb(7,17,27);
+				    line-height: 24px;
+			    }
+	        .price{
+		        position: absolute;
+		        right: 90px;
+		        bottom: 12px;
+		        line-height: 24px;
+		        font-size: 14px;
+		        font-weight: 700;
+		        color: rgb(240,20,20);
+	        }
+	        .editBtnWrapper{
+		        position: absolute;
+		        right: 0;
+		        bottom: 6px;
+	        }
+			    
+		    }
+	    }
+	  }
+		.overLayer{
+			position: fixed;
+			z-index: -2;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(7,17,27,0.6);
+			filter: blur(10px);
+			backdrop-filter: blur(10px);
 		}
 	}
 </style>

@@ -1,10 +1,10 @@
 <template>
 	<div class="editBtn">
 		<transition name="slide">
-		  <div class="decreaseBtn icon-remove_circle_outline btn" @click="editCount(-1)" v-show="food.count>0"></div>
+		  <div class="decreaseBtn icon-remove_circle_outline btn" @click="editCount(-1, $event)" v-show="food.count>0"></div>
 		</transition>
 		<div class="count" v-show="food.count>0">{{food.count}}</div>
-		<div class="increaseBtn icon-add_circle btn" @click="editCount(1)"></div>
+		<div class="increaseBtn icon-add_circle btn" @click="editCount(1, $event)"></div>
 	</div>
 
 </template>
@@ -21,7 +21,10 @@
 			}
 		},
 		methods: {
-			editCount (way) {
+			editCount (way, event) {
+				if (!event._constructed) {
+					return
+				}
 				if (way === 1) {
 					if (!this.food.count) {
 						Vue.set(this.food, 'count', 1)

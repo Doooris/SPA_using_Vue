@@ -95,6 +95,10 @@
 		},
 		methods: {
 			selectMenu (index, event) {
+				if (!event._constructed) {
+					return
+				}
+				console.log(index)
 				let kindList = this.$refs.foodsWrapper.getElementsByClassName('kindListHook')
 				let el = kindList[index]
 				this.foodsScroll.scrollToElement(el, 300)

@@ -240,17 +240,18 @@
 		}
 	  .fold-enter{
 		  transform: translate3D(0,100%,0);
+		  /*opacity: 0;*/
 	  }
 	  .fold-enter-active{
 		  transform: translate3D(0,0,0);
-		  transition: all 0.5s linear;
+		  transition: all 0.9s linear;
 	  }
 	  .cartDetailWrapper{
 		  /*border: 1px solid;*/
 		  position: absolute;
 		  box-sizing: border-box;
 		  left: 0;
-		  bottom: 0;
+		  bottom: 48px;
 		  width: 100%;
 		  z-index: -1;
 		  .detailHeader{
@@ -273,7 +274,7 @@
 	      }
 		  }
 	    .detailList{
-		    padding: 0 18px 70px 18px;
+		    padding: 0 18px;
 		    max-height: 217px;
 		    background: #fff;
 		    overflow: hidden;
@@ -301,7 +302,6 @@
 		        right: 0;
 		        bottom: 6px;
 	        }
-			    
 		    }
 	    }
 	  }

@@ -37,7 +37,9 @@
 				</div>
 			</div>
 		</transition>
-		<div class="overLayer" v-show="listShow"></div>
+		<transition name="fade">
+			<div class="overLayer" v-show="listShow"></div>
+		</transition>
 	</div>
 </template>
 
@@ -238,14 +240,6 @@
 				}
 			}
 		}
-	  .fold-enter{
-		  transform: translate3D(0,100%,0);
-		  /*opacity: 0;*/
-	  }
-	  .fold-enter-active{
-		  transform: translate3D(0,0,0);
-		  transition: all 0.9s linear;
-	  }
 	  .cartDetailWrapper{
 		  /*border: 1px solid;*/
 		  position: absolute;
@@ -264,12 +258,13 @@
 			  .title{
 				  float: left;
 				  font-size: 14px;
-				  font-weight: 200;
+				  font-weight: 400;
 				  color: rgb(7,17,27);
 			  }
 	      .empty{
 		      float: right;
 		      font-size: 12px;
+		      font-weight: 400;
 		      color: rgb(0,160,220);
 	      }
 		  }
@@ -304,6 +299,12 @@
 	        }
 		    }
 	    }
+		&.fold-enter,&.fold-leave-active{
+			 transform: translate3D(0,100%,0);
+		 }
+	  &.fold-enter-active,&.fold-leave-active{
+		  transition: all 0.5s;
+	 }
 	  }
 		.overLayer{
 			position: fixed;
@@ -313,8 +314,14 @@
 			width: 100%;
 			height: 100%;
 			background: rgba(7,17,27,0.6);
-			filter: blur(10px);
-			backdrop-filter: blur(10px);
+			/*filter: blur(10px);*/
+			/*backdrop-filter: blur(10px);*/
+			&.fade-enter,&.fade-leave-active {
+			  opacity: 0;
+			}
+	    &.fade-enter-active,&.fade-leave-active {
+		    transition: all 0.5s linear;
+	    }
 		}
 	}
 </style>

@@ -14,7 +14,7 @@
 				<li v-for="(kind,index) in goods" class="kindItem kindListHook">
 					<h1 class="kindName">{{kind.name}}</h1>
 					<ul class="foodsList">
-						<li v-for="(food,index) in kind.foods" class="foodItem border-1px">
+						<li v-for="(food,index) in kind.foods" class="foodItem border-1px" @click="selectFood(food,$event)">
 							<div class="icon"><img :src="food.icon" alt="pic of food" width="57" height="57"></div>
 							<div class="info">
 								<h2 class="foodName">{{food.name}}</h2>
@@ -35,6 +35,7 @@
 			</ul>
 		</div>
 		<cart :deliveryTime="seller.deliveryTime" :minPrice="seller.minPrice" :selectFoods="selectFoods"></cart>
+		<food :food="selectedFood" ref="food"></food>
 	</div>
 
 </template>
@@ -42,6 +43,7 @@
 <script type="text/ecmascript-6">
 	import BScroll from 'better-scroll'
 	import cart from 'components/cart/cart.vue'
+	import food from 'components/food/food.vue'
 	import editBtn from 'components/editBtn/editBtn.vue'
 	const ERR_OK = 0
 	export default {
@@ -49,7 +51,8 @@
 			return {
 				goods: [],
 				heightList: [],
-				scrollY: 0
+				scrollY: 0,
+				selectedFood: {}
 			}
 		},
 		props: {
@@ -94,6 +97,13 @@
 			})
 		},
 		methods: {
+			selectFood (food, event) {
+				if (!event._constructed) {
+					return
+				}
+				this.selectedFood = food
+				this.$refs.food.show()
+			},
 			selectMenu (index, event) {
 				if (!event._constructed) {
 					return
@@ -126,7 +136,7 @@
 			}
 		},
 		components: {
-			cart, editBtn
+			cart, editBtn, food
 		}
 	}
 </script>
@@ -265,6 +275,7 @@
 	          position: absolute;
 	          right: 0;
 	          bottom: -6px;
+	          z-index: 99;
           }
 	      }
 	    }

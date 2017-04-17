@@ -21,7 +21,24 @@
 					</div>
 					<div class="buy" v-show="!food.count || food.count===0" @click.stop.prevent="addToCart($event)">加入购物车</div>
 				</div>
-				
+				<split v-if="food.info"></split>
+				<div class="info" v-if="food.info">
+					<h1>商品介绍</h1>
+					<div class="text">{{food.info}}</div>
+				</div>
+				<split v-if="food.ratings"></split>
+				<div class="info" v-if="food.ratings">
+					<h1>商品评价</h1>
+					<div class="ratingsTag">
+						<div class="all">全部<span>{{food.ratings.length}}</span></div>
+						<div class="recommended">推荐<span>{{recommendedC}}</span></div>
+						<div class="spitSlot">吐槽<span>{{spitSlotC}}</span></div>
+					</div>
+					<div class="onlycontent">
+						<i class="icon-check_circle"></i>
+						<span>只看有内容的评价</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	</transition>
@@ -30,16 +47,35 @@
 <script type="text/ecmascript-6">
 	import BScroll from 'better-scroll'
 	import editBtn from 'components/editBtn/editBtn.vue'
+	import split from 'components/split/split.vue'
 	import Vue from 'vue'
 	export default {
 		data () {
 			return {
-				showFlag: false
+				showFlag: false,
+				recommendedC: 0,
+				spitSlotC: 0
 			}
 		},
 		props: {
 			food: {
 				type: Object
+			}
+		},
+		computed: {
+			recommended () {
+				this.food.ratings.forEach(rating => {
+					if (rating.rateType === 0) {
+						this.recommendedC++
+					}
+				})
+			},
+			spitSlot () {
+				this.food.ratings.forEach(rating => {
+					if (rating.rateType === 1) {
+						this.spitSlot++
+					}
+				})
 			}
 		},
 		methods: {
@@ -61,7 +97,7 @@
 				Vue.set(this.food, 'count', 1)
 			}
 		},
-		components: { editBtn }
+		components: { editBtn, split }
 	}
 </script>
 
@@ -128,7 +164,6 @@
 					}
 				}
 				.price{
-					margin-bottom: 18px;
 					font-weight: 700;
 					line-height: 24px;
 					.now{
@@ -146,8 +181,6 @@
 					position: absolute;
 					right: 12px;
 					bottom: 12px;
-
-
 				}
 				.buy{
 					position: absolute;
@@ -164,6 +197,21 @@
 					background: rgb(0,160,220);
 				}
 			}
+	  }
+	  .info{
+	    padding: 18px;
+		  h1{
+			  font-size: 14px;
+			  line-height: 14px;
+			  color: rgb(7,17,27);
+			  margin-bottom: 6px;
+		  }
+	    .text{
+		    font-size: 12px;
+		    font-weight: 200;
+		    color: rgb(77,85,93);
+		    line-height: 24px;
+	    }
 	  }
 	}
 </style>

@@ -13,7 +13,7 @@
 	import Vue from 'vue'
 	export default {
 		created () {
-			console.log(this.food)
+//			console.log(this.food)
 		},
 		props: {
 			food: {
@@ -28,7 +28,7 @@
 				if (way === 1) {
 					if (!this.food.count) {
 						Vue.set(this.food, 'count', 1)
-						console.log(this.food.count)
+//						console.log(this.food.count)
 					} else {
 						this.food.count++
 					}

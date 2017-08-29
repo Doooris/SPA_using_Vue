@@ -1,12 +1,12 @@
-@mixin border-1px($border,$color){
+@mixin border-1px($type,$color){
 	position: relative;
 	&:after{
 		display: block;
 		position: absolute;
 		left: 0;
-		bottom: 0;
+		#{$type}: 0;
 		width: 100%;
-		border-#{$border}: 1px solid $color;
+		border-bottom: 1px solid $color;
 		content: '';
 		}
 }

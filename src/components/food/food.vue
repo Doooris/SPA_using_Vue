@@ -23,21 +23,26 @@
 				</div>
 				<split v-if="food.info"></split>
 				<div class="info" v-if="food.info">
-					<h1>商品介绍</h1>
-					<div class="text">{{food.info}}</div>
+					<h1 class="title">商品介绍</h1>
+					<p class="text">{{food.info}}</p>
 				</div>
 				<split v-if="food.ratings"></split>
-				<div class="info" v-if="food.ratings">
-					<h1>商品评价</h1>
-					<div class="ratingsTag">
-						<div class="all">全部<span>{{food.ratings.length}}</span></div>
-						<div class="recommended">推荐<span>{{recommendedC}}</span></div>
-						<div class="spitSlot">吐槽<span>{{spitSlotC}}</span></div>
-					</div>
-					<div class="onlycontent">
-						<i class="icon-check_circle"></i>
-						<span>只看有内容的评价</span>
-					</div>
+				<div class="ratings" v-if="food.ratings">
+					<h1 class="title">商品评价</h1>
+          <ratingSelect :ratings="food.ratings" :desc="desc" :selectType="selectType" :onlyContent="onlyContent" class="ratingSelect" v-on:ratingTypeSelect="type" v-on:onlyContentToggle="content"></ratingSelect>
+          <ul class="showRatings" v-show="food.ratings && food.ratings.length">
+            <li v-for="rateItem in food.ratings" v-show="needShow(rateItem.rateType,rateItem.text)" class="rateItem border-1px">
+              <span class="rateTime">{{rateItem.rateTime}}</span>
+              <div class="rateText">
+                <span :class="{'icon-thumb_down':rateItem.rateType===1,'icon-thumb_up':rateItem.rateType===0}"></span>
+                <span class="text" v-if="rateItem.text">{{rateItem.text}}</span>
+              </div>
+              <div class="userInfo">
+                <span class="userName">{{rateItem.username}}</span><img class="avatar" :src="rateItem.avatar" width="12" height="12">
+              </div>
+            </li>
+          </ul>
+          <div class="noRatings" v-show="!food.ratings || !food.ratings.length">暂无评论</div>
 				</div>
 			</div>
 		</div>
@@ -48,13 +53,23 @@
 	import BScroll from 'better-scroll'
 	import editBtn from 'components/editBtn/editBtn.vue'
 	import split from 'components/split/split.vue'
+  import ratingSelect from 'components/ratingSelect/ratingSelect.vue'
 	import Vue from 'vue'
-	export default {
+
+//  const POSITIVE = 0
+//  const NEGATIVE = 1
+  const ALL = 2
+  export default {
 		data () {
 			return {
 				showFlag: false,
-				recommendedC: 0,
-				spitSlotC: 0
+        desc: {
+          all: '全部',
+          positive: '推荐',
+          negative: '吐槽'
+        },
+        selectType: ALL,
+        onlyContent: true
 			}
 		},
 		props: {
@@ -62,24 +77,10 @@
 				type: Object
 			}
 		},
-		computed: {
-			recommended () {
-				this.food.ratings.forEach(rating => {
-					if (rating.rateType === 0) {
-						this.recommendedC++
-					}
-				})
-			},
-			spitSlot () {
-				this.food.ratings.forEach(rating => {
-					if (rating.rateType === 1) {
-						this.spitSlot++
-					}
-				})
-			}
-		},
 		methods: {
 			show () {
+        this.selectType = ALL
+        this.onlyContent = false
 				this.showFlag = true
 				this.$nextTick(() => {
 					if (!this.foodScroll) {
@@ -90,19 +91,49 @@
 				})
 			},
 			addToCart (event) {
-				console.log(event)
+//				console.log(event)
 				if (!event._constructed) {
 					return
 				}
 				Vue.set(this.food, 'count', 1)
-			}
-		},
-		components: { editBtn, split }
+			},
+      type: function (data) {
+			    this.selectType = data
+          this.$nextTick(() => {
+			        this.foodScroll.refresh()
+          })
+      },
+      content (data) {
+			    this.onlyContent = data
+        this.$nextTick(() => {
+          this.foodScroll.refresh()
+        })
+      },
+      needShow (type, text) {
+        if (this.onlyContent && !text) {
+          return false
+        }
+        if (this.selectType === ALL) {
+          return true
+        } else {
+          return this.selectType === type
+        }
+      }
+
+    },
+		components: { editBtn, split, ratingSelect }
 	}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+  @import "../../common/css/mixin.scss";
+  .move-enter,.move-leave-active{
+    transform: translate3D(100%,0,0);
+  }
+  .move-enter-active,.move-leave-active{
+    transition: all 0.2s linear;
+  }
 	.food{
 		position: fixed;
 		left: 0;
@@ -111,12 +142,6 @@
 		background: #fff;
 		z-index: 30;
 		width: 100%;
-		&.move-enter,&.move-leave-active{
-		  transform: translate3D(100%,0,0);
-		 }
-	  &.move-enter-active,&.move-leave-active{
-		  transition: all 0.2s linear;
-	   }
 	  .foodContent{
 	     .imageHeader{
 				 position: relative;
@@ -198,20 +223,89 @@
 				}
 			}
 	  }
+    .title{
+      font-size: 14px;
+      line-height: 14px;
+      color: rgb(7,17,27);
+      margin-bottom: 6px;
+    }
 	  .info{
 	    padding: 18px;
-		  h1{
-			  font-size: 14px;
-			  line-height: 14px;
-			  color: rgb(7,17,27);
-			  margin-bottom: 6px;
-		  }
 	    .text{
 		    font-size: 12px;
 		    font-weight: 200;
 		    color: rgb(77,85,93);
 		    line-height: 24px;
+        padding: 0 8px;
 	    }
 	  }
+    .ratings{
+      padding-top: 18px;
+      .title{
+        padding-left: 18px;
+      }
+      .showRatings{
+        margin: 0 18px;
+        .rateItem{
+          padding: 16px 0;
+          position: relative;
+          @include border-1px(bottom,rgba(7,17,27,0.1));
+          &:last-child{
+            @include border-none();
+          }
+          .rateTime,.userInfo{
+            font-size: 10px;
+            color: rgb(147,153,159);
+            line-height: 12px;
+          }
+          .rateTime{
+            display: inline-block;
+            margin-bottom: 6px;
+          }
+          .rateText{
+            font-size: 0;
+            .icon-thumb_down::before,.icon-thumb_up::before{
+              font-size: 12px;
+              line-height: 20px;
+              margin-right: 4px;
+            }
+            .icon-thumb_down::before{
+              color: rgb(147,153,159);
+            }
+            .icon-thumb_up::before{
+              color: rgb(0,160,220);
+            }
+            .text{
+              font-size: 12px;
+              color: rgb(7,17,27);
+              line-height: 16px;
+            }
+          }
+          .userInfo{
+            position: absolute;
+            right: 18px;
+            top: 16px;
+            .userName{
+              display: inline-block;
+              vertical-align: top;
+              margin-right: 6px;
+            }
+            .avatar{
+              display: inline-block;
+              vertical-align: top;
+              border-radius: 50%;
+            }
+          }
+
+        }
+
+      }
+      .noRatings{
+        padding: 16px 18px;
+        font-size: 12px;
+        color: rgb(147,153,159);
+
+      }
+    }
 	}
 </style>

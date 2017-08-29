@@ -12,7 +12,7 @@
 				<div class="desc">另需配送费￥{{deliveryTime}}元</div>
 			</div>
 			<div class="cartRight" >
-				<div class="pay" :class="{'highLight':totalPrice>=minPrice}">
+				<div class="pay" :class="{'highLight':totalPrice>=minPrice}" @click.stop.prevent="pay">
 					{{desc}}</div>
 			  </div>
 		</div>
@@ -84,7 +84,13 @@
 				this.selectFoods.forEach((food) => {
 					food.count = 0
 				})
-			}
+			},
+      pay () {
+			    if (this.totalPrice < this.minPrice) {
+			        return
+          }
+          window.alert(`支付${this.totalPrice}元`)
+      }
 		},
 		computed: {
 			totalPrice () {

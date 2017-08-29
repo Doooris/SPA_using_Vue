@@ -26,5 +26,5 @@ const router = new VueRouter({
 new Vue({
   router: router,
   template: '<App/>',
-  components: { App, seller }
+  components: { App, seller, ratings, goods }
 }).$mount('#app')

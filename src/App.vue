@@ -7,26 +7,35 @@
         <router-link to="/seller" class="tab-item">商家</router-link>
     </div>
     <div class="content">
-      <router-view :seller="seller"></router-view>
+      <keep-alive>
+        <router-view :seller="seller"></router-view>
+      </keep-alive>
     </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import { urlParse } from '../src/common/js/util.js'
   import Vheader from './components/header/header.vue'
   const ERR_OK = 0
   export default {
   	data () {
   		return {
-       seller: {}
+       seller: {
+           id: (() => {
+               let queryParam = urlParse()
+               console.log(queryParam)
+               return queryParam.id
+           })()
+       }
 		  }
 	  },
     created () {
-  		this.$http.get('/api/seller').then((res) => {
+  		this.$http.get('/api/seller?id=' + this.seller.id).then((res) => {
   			res = res.body
 			  if (res.errno === ERR_OK) {
-  				this.seller = res.data
-//				  console.log(this.seller)
+  				this.seller = Object.assign({}, this.seller, res.data)
+				  console.log(this.seller)
 			  }
 		  })
     },
@@ -34,7 +43,7 @@
   }
 </script>
 
-<style scoped lang="scss" rel="stylesheet/scss" type="text/css">
+<style scoped lang="scss" rel="stylesheet/scss">
 	@import "common/css/mixin.scss";
   .tab{
     display: flex;

@@ -12,7 +12,8 @@
           <div class="minPrice"><span class="top">平均配送时间</span><br><span class="deliveryData">{{seller.deliveryTime}}</span>分钟</div>
         </div>
         <div class="favorite">
-          <span class="icon-favorite"></span><br>已收藏
+          <span class="icon-favorite" :class="{'active':favorite}" @click="toggleFavorite"></span>
+          <span class="text">{{favoriteText}}</span>
         </div>
       </div>
       <split v-if="seller.bulletin"></split>
@@ -30,31 +31,35 @@
       <split v-if="seller.pics"></split>
       <div class="pics">
         <h1 class="title">商家实景</h1>
-        <div class="picsWrapper">
-          <ul class="picsList">
+        <div class="picsWrapper" ref="picsWrapper">
+          <ul class="picsList" ref="picsList">
             <li v-for="item in seller.pics"><img :src="item" alt="" width="120" height="90"></li>
           </ul>
         </div>
       </div>
-      <split v-if="seller.infos">
+      <split v-if="seller.infos"></split>
+      <div class="infos">
         <h1 class="title">商家信息</h1>
         <ul class="infosList">
-          <li v-for="item in seller.infos">{{item}}</li>
+          <li v-for="item in seller.infos" class="item border-1px">{{item}}</li>
         </ul>
-      </split>
-      <div class="infos"></div>
+      </div>
     </div>
   </div>
 
 </template>
 
 <script type="text/ecmascript-6">
+  import { saveToLocal, loadFromLocal } from '../../common/js/store.js'
   import split from '../split/split.vue'
   import star from '../star/star.vue'
   import BScroll from 'better-scroll'
 	export default {
 	    data () {
 	       return {
+	           favorite: (() => {
+	             return loadFromLocal(this.seller.id, 'favorite', false)
+             })()
          }
       },
       created () {
@@ -62,7 +67,8 @@
       },
       mounted () {
         this.$nextTick(() => {
-          this.sellerScroll = new BScroll(this.$refs.sellerWrapper, {click: true})
+          this._initSellerS()
+          this._initPicS()
         })
       },
       props: {
@@ -70,8 +76,47 @@
           type: Object
         }
       },
+      watch: {
+	       'seller' () {
+	           this._initSellerS()
+             this._initPicS()
+         }
+      },
       methods: {
-
+	        _initSellerS () {
+	            if (!this.sellerScroll) {
+                this.sellerScroll = new BScroll(this.$refs.sellerWrapper, {click: true})
+              } else {
+	                this.sellerScroll.refresh()
+              }
+          },
+	        _initPicS () {
+            if (this.seller.pics) {
+              let picWidth = 120
+              let margin = 6
+              let width = (picWidth + margin) * this.seller.pics.length - margin
+              this.$refs.picsList.style.width = width + 'px'
+              this.$nextTick(() => {
+                  if (!this.picsScroll) {
+                    this.picsScroll = new BScroll(this.$refs.picsWrapper, {scrollX: true, eventPassthrough: 'vertical'})
+                  } else {
+                      this.picsScroll.refresh()
+                  }
+              })
+            }
+          },
+          toggleFavorite (event) {
+	            if (!event._constructed) {
+	                return
+              }
+              this.favorite = !this.favorite
+              saveToLocal(this.seller.id, 'favorite', this.favorite)
+          }
+      },
+      computed: {
+	        favoriteText () {
+	            return this.favorite ? '已收藏' : '收藏'
+          }
       },
       components: {
 	        split, star
@@ -144,18 +189,25 @@
         }
         .favorite{
           position: absolute;
-          right: 18px;
+          right: 11px;
           top: 18px;
           text-align: center;
           font-size: 10px;
-          color: rgb(77,85,93);
-          line-height: 10px;
+          width: 50px;
           .icon-favorite{
-            display: inline-block;
+            display: block;
             font-size: 24px;
-            color: rgb(240,20,20);
             line-height: 24px;
             margin-bottom: 4px;
+            color: #d4d6d9;
+            &.active{
+              color: rgb(240,20,20);
+            }
+          }
+          .text{
+            color: rgb(77,85,93);
+            font-size: 10px;
+            line-height: 10px;
           }
         }
       }
@@ -232,6 +284,21 @@
             }
           }
         }
+      }
+      .infos{
+        padding: 18px;
+        .infosList{
+          margin-top: 12px;
+          .item{
+            padding: 16px 12px;
+            @include border-1px(top,rgba(7,17,27,0.1));
+            font-size: 12px;
+            font-weight: 200;
+            color: rgb(7,17,27);
+            line-height: 16px;
+          }
+        }
+
       }
     }
   }
